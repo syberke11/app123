@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
 import { router } from 'expo-router';
 import { Users, Key, CircleCheck as CheckCircle, RefreshCw } from 'lucide-react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function JoinOrganizeScreen() {
   const { profile, refreshProfile } = useAuth();
@@ -161,10 +162,15 @@ export default function JoinOrganizeScreen() {
           onPress={joinOrganize}
           disabled={loading}
         >
-          {loading && <ActivityIndicator size="small" color="white" style={{ marginRight: 8 }} />}
-          <Text style={styles.joinButtonText}>
-            {loading ? 'Memproses...' : 'Gabung Kelas'}
-          </Text>
+          <LinearGradient
+            colors={loading ? ['#9CA3AF', '#6B7280'] : ['#3B82F6', '#2563EB']}
+            style={styles.joinButtonGradient}
+          >
+            {loading && <ActivityIndicator size="small" color="white" style={{ marginRight: 8 }} />}
+            <Text style={styles.joinButtonText}>
+              {loading ? 'Memproses...' : 'Gabung Kelas'}
+            </Text>
+          </LinearGradient>
         </Pressable>
 
         <View style={styles.infoCard}>
@@ -184,130 +190,169 @@ export default function JoinOrganizeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: '#F8FAFC',
   },
   header: {
-    backgroundColor: 'white',
-    padding: 24,
+    background: 'linear-gradient(135deg, #3B82F6 0%, #6366F1 100%)',
+    padding: 32,
     paddingTop: 60,
     alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomLeftRadius: 32,
+    borderBottomRightRadius: 32,
+    shadowColor: '#3B82F6',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 15,
   },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
-    color: '#1F2937',
-    marginTop: 8,
+    color: 'white',
+    marginTop: 12,
+    textShadowColor: 'rgba(0,0,0,0.3)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   headerSubtitle: {
-    fontSize: 14,
-    color: '#6B7280',
-    marginTop: 4,
+    fontSize: 16,
+    color: 'white',
+    opacity: 0.9,
+    marginTop: 8,
+    fontWeight: '500',
   },
   formContainer: {
-    padding: 24,
+    padding: 28,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 16,
-    gap: 12,
-    marginBottom: 20,
+    borderRadius: 20,
+    padding: 20,
+    gap: 16,
+    marginBottom: 24,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
+    elevation: 8,
+    borderWidth: 2,
+    borderColor: '#E2E8F0',
   },
   input: {
     flex: 1,
-    fontSize: 18,
+    fontSize: 20,
     color: '#1F2937',
-    fontWeight: '600',
-    letterSpacing: 2,
+    fontWeight: 'bold',
+    letterSpacing: 3,
+    textAlign: 'center',
   },
   joinButton: {
-    backgroundColor: '#3B82F6',
-    padding: 16,
-    borderRadius: 12,
+    backgroundColor: 'transparent',
+    borderRadius: 20,
     alignItems: 'center',
-    marginBottom: 24,
+    marginBottom: 32,
+    overflow: 'hidden',
+    shadowColor: '#3B82F6',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
+    elevation: 10,
+  },
+  joinButtonGradient: {
+    padding: 20,
+    alignItems: 'center',
+    minHeight: 64,
+    justifyContent: 'center',
   },
   joinButtonDisabled: {
     opacity: 0.6,
   },
   joinButtonText: {
     color: 'white',
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
   },
   infoCard: {
     backgroundColor: 'white',
-    borderRadius: 12,
-    padding: 20,
+    borderRadius: 20,
+    padding: 24,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.12,
+    shadowRadius: 16,
+    elevation: 8,
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
   },
   infoTitle: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
     color: '#1F2937',
-    marginBottom: 12,
+    marginBottom: 16,
   },
   infoText: {
-    fontSize: 14,
+    fontSize: 15,
     color: '#6B7280',
-    lineHeight: 20,
+    lineHeight: 22,
+    fontWeight: '500',
   },
   successContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 40,
+    padding: 48,
   },
   successTitle: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
     color: '#1F2937',
-    marginTop: 16,
-    marginBottom: 8,
+    marginTop: 20,
+    marginBottom: 12,
   },
   successSubtitle: {
-    fontSize: 16,
+    fontSize: 17,
     color: '#6B7280',
     textAlign: 'center',
-    marginBottom: 32,
+    marginBottom: 40,
+    lineHeight: 24,
+    fontWeight: '500',
   },
   backButton: {
     backgroundColor: '#10B981',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 8,
+    paddingHorizontal: 32,
+    paddingVertical: 16,
+    borderRadius: 16,
+    shadowColor: '#10B981',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
   },
   backButtonText: {
     color: 'white',
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: 'bold',
   },
   refreshButton: {
-    backgroundColor: '#E0F2FE',
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 8,
+    backgroundColor: '#DBEAFE',
+    paddingHorizontal: 28,
+    paddingVertical: 14,
+    borderRadius: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
-    marginTop: 16,
+    gap: 10,
+    marginTop: 20,
+    shadowColor: '#3B82F6',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
   },
   refreshButtonText: {
     color: '#3B82F6',
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '600',
   },
 });

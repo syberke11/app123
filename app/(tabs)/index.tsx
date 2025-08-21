@@ -7,9 +7,9 @@ import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Location from 'expo-location';
 import { useRouter } from 'expo-router';
-import { Award, BookOpen, Calendar, Clock, ExternalLink, MapPin, Star, Target, TrendingUp, Users } from 'lucide-react-native';
+import { Award, BookOpen, Calendar, Clock, ExternalLink, MapPin, Star, Target, TrendingUp, Users, ChevronDown, X } from 'lucide-react-native';
 import React, { useEffect, useRef, useState } from 'react';
-import { Dimensions, FlatList, Image, Linking, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View,TouchableOpacity } from 'react-native';
+import { Dimensions, FlatList, Image, Linking, Modal, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import Animated, { FadeInUp, SlideInRight } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -71,7 +71,7 @@ const banners = [
 ];
 
 export default function HomeScreen() {
-    const [showDetails, setShowDetails] = useState(false);
+  const [showPrayerDetails, setShowPrayerDetails] = useState(false);
   const flatListRef = useRef<FlatList>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const router = useRouter();
@@ -476,101 +476,55 @@ export default function HomeScreen() {
 
         {/* Main Content Area (White Background) */}
         <View style={styles.whiteContentArea}>
-          {/* Floating Prayer Times Card */}
-             {prayerTimes && (
-        <Animated.View 
-          entering={FadeInUp.delay(200)} 
-        style={{
-    backgroundColor: 'white',
-    borderRadius: 20,      // radius lebih bulat
-    marginBottom: 24,      // jarak bawah lebih besar
-    padding: 24,           // isi card lebih lega
-    marginHorizontal: 16,  // bisa dikecilin biar card lebih lebar
-    shadowColor: '#000',
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 6,
-  }}
-        >
-          {/* Header kecil */}
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <Clock size={22} color="#10B981" />
-              <Text style={{ fontSize: 16, fontWeight: 'bold', marginLeft: 8 }}>
-                {nextPrayer?.name} - {nextPrayer?.time}
-              </Text>
-            </View>
-
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <MapPin size={14} color="#6B7280" />
-              <Text style={{ fontSize: 12, color: '#6B7280', marginLeft: 4 }}>
-                {locationName}
-              </Text>
-            </View>
-          </View>
-
-          {/* Countdown */}
-          <Text style={{ marginTop: 8, fontSize: 13, color: '#374151' }}>
-            dalam {nextPrayer?.timeLeft}
-          </Text>
-
-          {/* Tombol detail */}
-          <TouchableOpacity 
-            onPress={() => setShowDetails(!showDetails)}
-            style={{
-              marginTop: 10,
-              paddingVertical: 6,
-              alignSelf: 'flex-end',
-            }}
-          >
-            <Text style={{ fontSize: 16, fontWeight: '600', color: '#10B981' }}>
-              {showDetails ? 'Sembunyikan' : 'Lihat Detail'}
-            </Text>
-          </TouchableOpacity>
-
-          {/* Detail jadwal sholat */}
-          {showDetails && (
-            <View style={{ marginTop: 12 }}>
-              {Object.entries({
-                'Subuh': prayerTimes.fajr,
-                'Dzuhur': prayerTimes.dhuhr,
-                'Ashar': prayerTimes.asr,
-                'Maghrib': prayerTimes.maghrib,
-                'Isya': prayerTimes.isha,
-              }).map(([name, time]) => {
-                const isNext = nextPrayer?.name === name;
-                return (
-                  <View 
-                    key={name} 
-                    style={{
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      paddingVertical: 6,
-                      borderBottomWidth: 0.5,
-                      borderColor: '#E5E7EB',
-                    }}
-                  >
-                    <Text style={{ 
-                      fontSize: 14, 
-                      fontWeight: isNext ? 'bold' : 'normal',
-                      color: isNext ? '#10B981' : '#111827' 
-                    }}>
-                      {name}
-                    </Text>
-                    <Text style={{ 
-                      fontSize: 14, 
-                      fontWeight: isNext ? 'bold' : 'normal',
-                      color: isNext ? '#10B981' : '#374151' 
-                    }}>
-                      {time}
-                    </Text>
+          {/* Enhanced Floating Prayer Times Card */}
+          {prayerTimes && nextPrayer && (
+            <Animated.View 
+              entering={FadeInUp.delay(200)} 
+              style={styles.floatingPrayerCard}
+            >
+              <LinearGradient
+                colors={['#059669', '#10B981', '#34D399']}
+                style={styles.prayerCardGradient}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+              >
+                <View style={styles.prayerCardHeader}>
+                  <View style={styles.prayerIconContainer}>
+                    <Clock size={28} color="white" />
                   </View>
-                );
-              })}
-            </View>
+                  <View style={styles.locationBadge}>
+                    <MapPin size={14} color="white" />
+                    <Text style={styles.locationText}>{locationName}</Text>
+                  </View>
+                </View>
+
+                <Text style={styles.nextPrayerLabel}>Sholat Berikutnya</Text>
+                <Text style={styles.nextPrayerName}>{nextPrayer.name}</Text>
+                <Text style={styles.nextPrayerTime}>{nextPrayer.time} WIB</Text>
+                
+                {/* Enhanced Countdown */}
+                <View style={styles.countdownContainer}>
+                  <View style={styles.countdownItem}>
+                    <Text style={styles.countdownNumber}>{timeLeft.hours.toString().padStart(2, '0')}</Text>
+                    <Text style={styles.countdownLabel}>Jam</Text>
+                  </View>
+                  <Text style={styles.countdownSeparator}>:</Text>
+                  <View style={styles.countdownItem}>
+                    <Text style={styles.countdownNumber}>{timeLeft.minutes.toString().padStart(2, '0')}</Text>
+                    <Text style={styles.countdownLabel}>Menit</Text>
+                  </View>
+                </View>
+
+                <TouchableOpacity 
+                  onPress={() => setShowPrayerModal(true)}
+                  style={styles.detailButton}
+                >
+                  <Text style={styles.detailButtonText}>Lihat Semua Jadwal</Text>
+                  <ChevronDown size={16} color="white" />
+                </TouchableOpacity>
+              </LinearGradient>
+            </Animated.View>
           )}
-        </Animated.View>
-      )}
 
           {/* Unified Stats Section */}
            <Animated.View entering={FadeInUp.delay(200)} style={styles.statsContainer}>
@@ -787,6 +741,72 @@ export default function HomeScreen() {
           </Animated.View>
         </View>
       </ScrollView>
+
+      {/* Prayer Times Modal */}
+      <Modal
+        visible={showPrayerModal}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setShowPrayerModal(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalHeader}>
+            <Text style={styles.modalTitle}>Jadwal Sholat Hari Ini</Text>
+            <Pressable onPress={() => setShowPrayerModal(false)} style={styles.modalCloseButton}>
+              <X size={24} color="#6B7280" />
+            </Pressable>
+          </View>
+
+          <View style={styles.modalContent}>
+            <View style={styles.modalLocationHeader}>
+              <MapPin size={20} color="#10B981" />
+              <Text style={styles.modalLocationText}>{locationName}</Text>
+              <Text style={styles.modalDate}>
+                {currentTime.format('dddd, DD MMMM YYYY')}
+              </Text>
+            </View>
+
+            <View style={styles.prayerTimesList}>
+              {Object.entries({
+                'Subuh': prayerTimes?.fajr,
+                'Dzuhur': prayerTimes?.dhuhr,
+                'Ashar': prayerTimes?.asr,
+                'Maghrib': prayerTimes?.maghrib,
+                'Isya': prayerTimes?.isha,
+              }).map(([name, time]) => {
+                const isNext = nextPrayer?.name === name;
+                return (
+                  <View 
+                    key={name} 
+                    style={[
+                      styles.prayerTimeItem,
+                      isNext && styles.prayerTimeItemActive
+                    ]}
+                  >
+                    <Text style={[
+                      styles.prayerTimeName,
+                      isNext && styles.prayerTimeNameActive
+                    ]}>
+                      {name}
+                    </Text>
+                    <Text style={[
+                      styles.prayerTimeValue,
+                      isNext && styles.prayerTimeValueActive
+                    ]}>
+                      {time} WIB
+                    </Text>
+                    {isNext && (
+                      <View style={styles.nextIndicator}>
+                        <Text style={styles.nextIndicatorText}>Berikutnya</Text>
+                      </View>
+                    )}
+                  </View>
+                );
+              })}
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -860,113 +880,238 @@ const styles = StyleSheet.create({
   whiteContentArea: {
     backgroundColor: 'white',
     flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingTop: 40,
   },
   floatingPrayerCard: {
     backgroundColor: 'white',
-    borderRadius: 24,
-    padding: 24,
-    marginTop: -60,
-    marginBottom: 32,
+    borderRadius: 32,
+    marginTop: -80,
+    marginBottom: 40,
+    marginHorizontal: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 16 },
-    shadowOpacity: 0.15,
-    shadowRadius: 24,
-    elevation: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(16, 185, 129, 0.1)',
+    shadowOffset: { width: 0, height: 20 },
+    shadowOpacity: 0.25,
+    shadowRadius: 30,
+    elevation: 15,
+    overflow: 'hidden',
+  },
+  prayerCardGradient: {
+    padding: 32,
+    alignItems: 'center',
   },
   prayerCardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20,
+    width: '100%',
+    marginBottom: 24,
   },
-  prayerHeaderLeft: {
-    flexDirection: 'row',
+  prayerIconContainer: {
+    width: 56,
+    height: 56,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    borderRadius: 28,
     alignItems: 'center',
-    gap: 12,
-  },
-  prayerCardTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#1F2937',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: 'rgba(255,255,255,0.3)',
   },
   locationBadge: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: 'rgba(255,255,255,0.2)',
     paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
+    paddingVertical: 8,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.3)',
   },
   locationText: {
-    fontSize: 12,
-    color: '#6B7280',
+    fontSize: 13,
+    color: 'white',
     fontWeight: '600',
-  },
-  nextPrayerBanner: {
-    backgroundColor: '#F0FDF4',
-    borderRadius: 16,
-    padding: 16,
-    marginBottom: 20,
-    borderLeftWidth: 4,
-    borderLeftColor: '#10B981',
   },
   nextPrayerLabel: {
-    fontSize: 12,
-    color: '#059669',
+    fontSize: 14,
+    color: 'white',
+    opacity: 0.9,
     fontWeight: '600',
+    marginBottom: 8,
+  },
+  nextPrayerName: {
+    fontSize: 32,
+    fontWeight: 'bold',
+    color: 'white',
     marginBottom: 4,
   },
-  nextPrayerInfo: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#1F2937',
-    marginBottom: 2,
+  nextPrayerTime: {
+    fontSize: 20,
+    color: 'white',
+    fontWeight: '600',
+    marginBottom: 20,
+    opacity: 0.95,
   },
-  nextPrayerCountdown: {
+  countdownContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+    marginBottom: 24,
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    paddingHorizontal: 24,
+    paddingVertical: 16,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
+  },
+  countdownItem: {
+    alignItems: 'center',
+  },
+  countdownNumber: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: 'white',
+    fontFamily: 'monospace',
+  },
+  countdownLabel: {
     fontSize: 12,
-    color: '#6B7280',
+    color: 'white',
+    opacity: 0.8,
+    marginTop: 4,
     fontWeight: '500',
   },
-  prayerTimesList: {
-    gap: 12,
+  countdownSeparator: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: 'white',
+    opacity: 0.7,
   },
-  prayerTimeItem: {
+  detailButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.3)',
+  },
+  detailButtonText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  // Modal Styles
+  modalContainer: {
+    flex: 1,
+    backgroundColor: '#F8FAFC',
+  },
+  modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: '#F9FAFB',
-    padding: 16,
-    borderRadius: 12,
+    padding: 20,
+    paddingTop: 60,
+    backgroundColor: 'white',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E5E7EB',
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1E293B',
+    flex: 1,
+  },
+  modalCloseButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#F1F5F9',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalContent: {
+    flex: 1,
+    padding: 20,
+  },
+  modalLocationHeader: {
+    alignItems: 'center',
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 24,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  modalLocationText: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#1E293B',
+    marginTop: 8,
+  },
+  modalDate: {
+    fontSize: 14,
+    color: '#64748B',
+    marginTop: 4,
+  },
+  prayerTimesList: {
+    gap: 16,
+  },
+  prayerTimeItem: {
+    backgroundColor: 'white',
+    borderRadius: 16,
+    padding: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
+    borderWidth: 2,
+    borderColor: 'transparent',
   },
   prayerTimeItemActive: {
-    backgroundColor: '#10B981',
+    borderColor: '#10B981',
+    backgroundColor: '#F0FDF4',
     shadowColor: '#10B981',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
+    shadowOpacity: 0.2,
   },
-  prayerName: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#1F2937',
-  },
-  prayerNameActive: {
-    color: 'white',
+  prayerTimeName: {
+    fontSize: 18,
     fontWeight: 'bold',
+    color: '#1E293B',
   },
-  prayerTime: {
-    fontSize: 16,
-    fontWeight: 'bold',
+  prayerTimeNameActive: {
     color: '#10B981',
   },
-  prayerTimeActive: {
+  prayerTimeValue: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#64748B',
+    fontFamily: 'monospace',
+  },
+  prayerTimeValueActive: {
+    color: '#10B981',
+  },
+  nextIndicator: {
+    position: 'absolute',
+    top: -8,
+    right: -8,
+    backgroundColor: '#10B981',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  nextIndicatorText: {
     color: 'white',
+    fontSize: 10,
+    fontWeight: 'bold',
   },
   unifiedStatsSection: {
     marginBottom: 32,
@@ -1006,6 +1151,7 @@ const styles = StyleSheet.create({
   },
    progressSection: {
     marginBottom: 24,
+    paddingHorizontal: 20,
   },
   progressCards: {
     flexDirection: 'row',
@@ -1054,6 +1200,7 @@ const styles = StyleSheet.create({
   },
   bannerSection: {
     marginBottom: 32,
+    paddingHorizontal: 20,
   },
   bannerCard: {
     width: width * 0.85,
@@ -1110,6 +1257,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 12,
     marginBottom: 24,
+    paddingHorizontal: 20,
   },
   bannerImageContainer: {
     width: 80,
@@ -1135,6 +1283,7 @@ const styles = StyleSheet.create({
   },
   activitySection: {
     marginBottom: 32,
+    paddingHorizontal: 20,
   },
   activityList: {
     gap: 12,
@@ -1207,6 +1356,7 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     overflow: 'hidden',
     marginBottom: 20,
+    marginHorizontal: 20,
     shadowColor: '#F59E0B',
     shadowOffset: { width: 0, height: 12 },
     shadowOpacity: 0.25,
